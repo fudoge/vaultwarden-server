@@ -1,0 +1,5 @@
+/caddy
+/vw-data
+.env
+/backup
+autobackup.sh
