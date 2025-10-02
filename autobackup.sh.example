@@ -7,6 +7,7 @@ BIN="/usr/local/bin"
 BASE_DIR="/Users/<you>/vaultwarden-server"
 BACKUP="vw-$(date +%F)"
 S3_BUCKET="<s3 bucket>"
+SNS_TOPIC="<sns topic arn>"
 
 ZIPFILE="backup-${BACKUP}.tar.gz"
 
@@ -15,6 +16,12 @@ ${BIN}/docker pause vaultwarden > /dev/null
 tar -czf "${ZIPFILE}" -C "${BASE_DIR}" vw-data
 ${BIN}/docker unpause vaultwarden > /dev/null
 
-${BIN}/aws s3 cp "${ZIPFILE}" "${S3_BUCKET}" --profile backup-manager > /dev/null
+if ${BIN}/aws s3 cp "${ZIPFILE}" "${S3_BUCKET}" --profile backup-manager > /dev/null; then
+    ${BIN}/aws sns publish --topic-arn ${SNS_TOPIC} --message "Backup Success: ${ZIPFILE} at $(date)"
+else
+    ${BIN}/aws sns publish --topic-arn ${SNS_TOPIC} --message "Backup Failed: ${ZIPFILE} at $(date)"
+    exit 1
+fi
 
 rm -f ${ZIPFILE}
+
