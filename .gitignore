@@ -1,5 +1,9 @@
 /caddy
 /vw-data
+/promtail-positions
+/loki-data
+/grafana-data
+/prometheus-data
 .env
 /backup
 autobackup.sh
